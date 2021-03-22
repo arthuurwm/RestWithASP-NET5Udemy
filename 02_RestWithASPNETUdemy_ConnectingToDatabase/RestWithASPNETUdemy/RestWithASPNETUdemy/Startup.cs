@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using RestWithASPNETUdemy.Model.Context;
 using RestWithASPNETUdemy.Services.Implementations;
 
 namespace RestWithASPNETUdemy
@@ -20,6 +22,10 @@ namespace RestWithASPNETUdemy
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            var connection = Configuration["MySQLConnection:MySQLConnectionString"];
+            services.AddDbContext<MySQLContext>(options => options.UseMySql(connection));
+            
             // Dependency Injection
             services.AddScoped<IPersonService, PersonServiceImplementation>();
         }
