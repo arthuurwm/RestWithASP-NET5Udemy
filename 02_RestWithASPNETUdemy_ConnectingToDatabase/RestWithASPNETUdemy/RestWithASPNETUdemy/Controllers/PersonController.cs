@@ -14,10 +14,10 @@ namespace RestWithASPNETUdemy.Controllers
 
         private IPersonBusiness _personBusiness;
 
-        public PersonController(ILogger<PersonController> logger, IPersonBusiness personService)
+        public PersonController(ILogger<PersonController> logger, IPersonBusiness personBusiness)
         {
             _logger = logger;
-            _personBusiness = personService;
+            _personBusiness = personBusiness;
         }
 
         [HttpGet]
