@@ -1,74 +1,81 @@
-﻿using RestWithASPNETUdemy.Model;
+﻿using Microsoft.EntityFrameworkCore;
+using RestWithASPNETUdemy.Model.Base;
 using RestWithASPNETUdemy.Model.Context;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace RestWithASPNETUdemy.Repository.Implementations
+namespace RestWithASPNETUdemy.Repository.Generic
 {
-    public class BookRepositoryImplementation : IBookRepository
+    public class GenericRepository<T> : IRepository<T> where T : BaseEntity
     {
+
         private MySQLContext _context;
 
-        public BookRepositoryImplementation(MySQLContext context)
+        private DbSet<T> dataset;
+
+        public GenericRepository(MySQLContext context)
         {
             _context = context;
+            dataset = _context.Set<T>();
         }
 
-        public List<Book> FindAll()
+        public List<T> FindAll()
         {
-            return _context.Books.ToList();
+            return dataset.ToList();
         }
 
-        public Book FindByID(long id)
+        public T FindByID(long ID)
         {
-            return _context.Books.SingleOrDefault(p => p.Id.Equals(id));
+            return dataset.SingleOrDefault(p => p.Id.Equals(ID));
         }
 
-        public Book Create(Book book)
+        public T Create(T item)
         {
             try
             {
-                _context.Add(book);
+                dataset.Add(item);
                 _context.SaveChanges();
+                return item;
             }
             catch (Exception)
             {
                 throw;
             }
-            return book;
         }
 
-        public Book Update(Book book)
+        public T Update(T item)
         {
-            if (!Exists(book.Id)) return null;
-
-            var result = _context.Books.SingleOrDefault(p => p.Id.Equals(book.Id));
+            var result = dataset.SingleOrDefault(p => p.Id.Equals(item.Id));
 
             if (result != null)
             {
                 try
                 {
-                    _context.Entry(result).CurrentValues.SetValues(book);
+                    _context.Entry(result).CurrentValues.SetValues(item);
                     _context.SaveChanges();
+                    return result;
                 }
                 catch (Exception)
                 {
                     throw;
                 }
             }
-            return book;
+            else
+            {
+                return null;
+            }
         }
 
         public void Delete(long ID)
         {
-            var result = _context.Books.SingleOrDefault(p => p.Id.Equals(ID));
+            var result = dataset.SingleOrDefault(p => p.Id.Equals(ID));
 
             if (result != null)
             {
                 try
                 {
-                    _context.Books.Remove(result);
+                    dataset.Remove(result);
                     _context.SaveChanges();
                 }
                 catch (Exception)
@@ -80,7 +87,7 @@ namespace RestWithASPNETUdemy.Repository.Implementations
 
         public bool Exists(long id)
         {
-            return _context.Books.Any(p => p.Id.Equals(id));
+            return dataset.Any(p => p.Id.Equals(id));
         }
     }
 }
